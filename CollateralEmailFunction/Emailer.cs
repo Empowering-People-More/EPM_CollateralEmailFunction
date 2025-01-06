@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using SendGrid;
 using SendGrid.Helpers.Mail;
@@ -31,7 +32,7 @@ namespace CollateralEmailFunction
         /// <param name="subject">Email subject line</param>
         /// <param name="body">Body of the Email</param>
         /// <exception cref="Exception">Thrown if the api call is not successful.</exception>
-        internal async Task SendEmailAsync(string[] to, string subject, string body)
+        internal async Task SendEmailAsync(string[] to, string subject, string body, ILogger<CollateralEmailerFunction> logger)
         {
             var tos = to.Where(x => !string.IsNullOrEmpty(x)).Select(x => new EmailAddress(x)).ToList();
             //var ccs = cc.Where(x => !string.IsNullOrEmpty(x) && !tos.Any(toAddress => toAddress.Email == x))
@@ -49,6 +50,7 @@ namespace CollateralEmailFunction
                 //ccs.Clear();
                 //ccs.Add(new EmailAddress("luis@epm.net"));
             }
+            logger.LogInformation("Preparing email to " + tos);
             var from = new EmailAddress("noreply@epm.net", "No Reply");
             var message = new SendGridMessage
             {
@@ -64,11 +66,14 @@ namespace CollateralEmailFunction
             
             if (response.IsSuccessStatusCode)
             {
-                //Log.Information("Email sent successfully.");
+                logger.LogInformation("Email sent successfully to " + tos);
             }
             else
             {
-                throw new Exception($"Error occurred attempting to send email - {response.StatusCode}");
+                logger.LogError("Error sending email to " + tos + ".  Status Code: " +
+                    Environment.NewLine + response.StatusCode + Environment.NewLine +
+                    "Details:" + Environment.NewLine +
+                    response.Body);
             }
         }
     }

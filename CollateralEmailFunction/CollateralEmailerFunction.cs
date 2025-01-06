@@ -34,6 +34,7 @@ namespace CollateralEmailFunction
 
         public void GetEncompassLoansForNotification()
         {
+            _logger.LogInformation("Retrieving loans from Encompass for Collateral Notification.");
             DateTime runDate = DateTime.Now.AddDays(-3);
             CEF_Request request = CEF_Request.BuildRequest(runDate);
             string requestString = CEF_Request.BuildRequestString(request.requestRoot);
@@ -41,6 +42,8 @@ namespace CollateralEmailFunction
             EncompassApiWrapper api = new EncompassApiWrapper(encompassCredentials);
             api.GetToken();
             List<CefResponseRoot> loans = api.GetCollateralEmailLoans(requestString);
+
+            _logger.LogInformation("Retrieved " + loans.Count.ToString() + " loans for emailing.");
 
             foreach(CefResponseRoot loan in loans)
             {
@@ -50,6 +53,7 @@ namespace CollateralEmailFunction
 
         public void Send3DayEmail(CefResponseRoot loan)
         {
+            _logger.LogInformation("Preparing email for loan " + loan.fields.LoanLoanNumber );
             string body = EmailTemplate.GetBodyTemplate();
             DateTime fundDate = DateTime.Parse(loan.fields.Fields1997);
             string fundDateString = fundDate.ToString("MM/dd/yyyy");
@@ -69,7 +73,7 @@ namespace CollateralEmailFunction
 
             List<string> ccList = new List<string>();
 
-            Task t = Task.Run( () => new Emailer(encompassCredentials).SendEmailAsync(toList.ToArray(), subject, body));
+            Task t = Task.Run( () => new Emailer(encompassCredentials).SendEmailAsync(toList.ToArray(), subject, body, _logger));
             t.Wait();
             //Emailer emailClient = new Emailer();
             //await emailClient.SendEmailAsync(toList.ToArray(), subject, body); 
