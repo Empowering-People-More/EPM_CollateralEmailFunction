@@ -10,7 +10,10 @@ namespace CollateralEmailTask
 {
     internal class Program
     {
-        
+        /// <summary>
+        /// Completed.
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
             var appSettings = GetLocalAppSettings();
