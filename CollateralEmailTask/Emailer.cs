@@ -52,8 +52,7 @@ namespace CollateralEmailTask
             }
             //logger.LogInformation("Preparing email to " + tos);
             var from = new EmailAddress("noreply@epm.net", "No Reply");
-            var ccs = new List<EmailAddress>();
-            //Added cc to collateral.pc@epm.net
+            var ccs = new List<EmailAddress>();            
             ccs.Add(new EmailAddress("collateral.pc@epm.net"));
             var message = new SendGridMessage
             {
