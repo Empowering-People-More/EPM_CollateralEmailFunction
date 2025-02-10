@@ -11,7 +11,7 @@ namespace CollateralEmailTask
     internal class Program
     {
         /// <summary>
-        /// 
+        /// Tool used to send collateral emails to brokers.
         /// </summary>
         /// <param name="args"></param>
         /// 
