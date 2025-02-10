@@ -14,6 +14,7 @@ namespace CollateralEmailTask
         /// Tool used to send out Collateral Emails to brokers.
         /// </summary>
         /// <param name="args"></param>
+        /// 
         static void Main(string[] args)
         {
             var appSettings = GetLocalAppSettings();
