@@ -55,7 +55,7 @@ namespace CollateralEmailFunction
         {
             _logger.LogInformation("Preparing email for loan " + loan.fields.LoanLoanNumber );
             string body = EmailTemplate.GetBodyTemplate();
-            DateTime fundDate = DateTime.Parse(loan.fields.Fields1997);
+            DateTime fundDate = DateTime.Parse(loan.fields.Fields1999);
             string fundDateString = fundDate.ToString("MM/dd/yyyy");
 
             body = string.Format(body, fundDateString);

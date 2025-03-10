@@ -84,7 +84,7 @@ namespace CollateralEmailTask
                 list.Add("Loan.LoanNumber");
                 list.Add("Fields.VEND.X670");
                 list.Add("Fields.CX.PC.ORIGINAL.NOTE.DATE");
-                list.Add("Fields.1997");
+                list.Add("Fields.1999");
                 list.Add("Loan.BorrowerLastName");
 
                 return list;
@@ -105,7 +105,7 @@ namespace CollateralEmailTask
             public static List<SortOrder> BuildSortOrder()
             {
                 SortOrder s = new SortOrder();
-                s.canonicalName = "Fields.1997";
+                s.canonicalName = "Fields.1999";
                 s.order = "Descending";
 
                 List<SortOrder> list = new List<SortOrder>();
@@ -136,7 +136,7 @@ namespace CollateralEmailTask
             public static Term BuildFundingDateTerm(DateTime fundDate)
             {
                 Term t = new Term();
-                t.canonicalName = "Fields.1997";
+                t.canonicalName = "Fields.1999";
                 t.value = fundDate.ToString("MM/dd/yyyy");
                 t.matchType = "Equals";
                 t.precision = "Day";

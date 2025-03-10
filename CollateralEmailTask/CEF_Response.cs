@@ -29,8 +29,8 @@ namespace CollateralEmailTask
         [JsonProperty("Fields.CX.PC.ORIGINAL.NOTE.DATE")]
         public string FieldsCXPCORIGINALNOTEDATE { get; set; }
 
-        [JsonProperty("Fields.1997")]
-        public string Fields1997 { get; set; }
+        [JsonProperty("Fields.1999")]
+        public string Fields1999 { get; set; }
 
         [JsonProperty("Loan.BorrowerLastName")]
         public string LoanBorrowerLastName { get; set; }
@@ -42,7 +42,7 @@ namespace CollateralEmailTask
             LoanLoanNumber = string.Empty;
             FieldsVENDX670 = string.Empty;
             FieldsCXPCORIGINALNOTEDATE  = string.Empty;
-            Fields1997 = string.Empty;
+            Fields1999 = string.Empty;
             LoanBorrowerLastName = string.Empty;
         }
     }
