@@ -17,6 +17,7 @@ namespace CollateralEmailTask
         /// Completed.  Now handles -2 days if the filter field is not yet completed.
         /// </summary>
         /// <param name="args"></param>
+        /// 
         static void Main(string[] args)
         {
 
