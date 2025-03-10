@@ -5,35 +5,62 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
 using Newtonsoft.Json;
+using EPM_AppInsightsLogger;
+using Serilog;
 
 namespace CollateralEmailTask
 {
     internal class Program
     {
+        private static AppInsightsLogger _logger;
         /// <summary>
-        /// Tool used to send collateral emails to brokers.
+        /// Completed.  Now handles -2 days if the filter field is not yet completed.
         /// </summary>
         /// <param name="args"></param>
         /// 
         static void Main(string[] args)
         {
+
             var appSettings = GetLocalAppSettings();
+
+            _logger = new AppInsightsLogger(appSettings.AppInsightsKey, EPM_AppInsightsLogger.Environment.Prod, "EPM_CollateralEmailer");
 
             DateTime runDate = DateTime.Now.AddDays(-3);
 
-            ProcessDay(runDate, appSettings);
+            _logger.Information("Running collateral emailer for " + runDate.ToString("MM/dd/yyyy") + " (" + runDate.ToString("dddd") + ")");
+
+            ProcessDay(runDate, appSettings, _logger);
+
+            _logger.Information("Completed collateral emailer for " + runDate.ToString("MM/dd/yyyy") + " (" + runDate.ToString("dddd") + ")");
+
+            runDate = DateTime.Now.AddDays(-4);
+
+            _logger.Information("Running collateral emailer for " + runDate.ToString("MM/dd/yyyy") + " (" + runDate.ToString("dddd") + ")");
+
+            ProcessDay(runDate, appSettings, _logger);
+
+            _logger.Information("Completed collateral emailer for " + runDate.ToString("MM/dd/yyyy") + " (" + runDate.ToString("dddd") + ")");
 
             if (DateTime.Now.DayOfWeek == DayOfWeek.Monday)
             {
-                DateTime prevSundayBatchDate = DateTime.Now.AddDays(-4);
-                ProcessDay(prevSundayBatchDate, appSettings);
+                DateTime prevSundayBatchDate = DateTime.Now.AddDays(-5);
+                _logger.Information("Running collateral emailer for " + prevSundayBatchDate.ToString("MM/dd/yyyy")
+                    + " (" + prevSundayBatchDate.ToString("dddd") + ")");
+                ProcessDay(prevSundayBatchDate, appSettings, _logger);
 
-                DateTime prevSaturdayBatchDate = DateTime.Now.AddDays(-5);
-                ProcessDay(prevSaturdayBatchDate, appSettings);
+                _logger.Information("Completed collateral emailer for " + prevSundayBatchDate.ToString("MM/dd/yyyy")
+                    + " (" + prevSundayBatchDate.ToString("dddd") + ")");
+
+                DateTime prevSaturdayBatchDate = DateTime.Now.AddDays(-6);
+                _logger.Information("Running collateral emailer for " + prevSaturdayBatchDate.ToString("MM/dd/yyyy")
+                    + " (" + prevSaturdayBatchDate.ToString("dddd") + ")");
+                ProcessDay(prevSaturdayBatchDate, appSettings, _logger);
             }
+            //Added completion logging.
+            _logger.Information("Completed collateral emailer process.");
         }
 
-        public static void ProcessDay(DateTime runDate, AppSettings appSettings)
+        public static void ProcessDay(DateTime runDate, AppSettings appSettings, AppInsightsLogger logger)
         {
             CEF_Request request = CEF_Request.BuildRequest(runDate);
             string requestString = CEF_Request.BuildRequestString(request.requestRoot);
@@ -44,7 +71,16 @@ namespace CollateralEmailTask
 
             foreach (CefResponseRoot loan in loans)
             {
-                Send3DayEmail(loan, appSettings);
+                logger.Information("Sending email for " + loan.fields.LoanLoanNumber + " - " + loan.fields.LoanBorrowerLastName.ToString());
+                try
+                {
+                    Send3DayEmail(loan, appSettings);
+                    logger.Information("Sent email for " + loan.fields.LoanLoanNumber + " - " + loan.fields.LoanBorrowerLastName.ToString());
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("Error sending email for " + loan.fields.LoanLoanNumber + ".  Exception: " + ex.ToString());
+                }
             }
         }
 
@@ -52,7 +88,7 @@ namespace CollateralEmailTask
         {
             //_logger.LogInformation("Preparing email for loan " + loan.fields.LoanLoanNumber);
             string body = EmailTemplate.GetBodyTemplate();
-            DateTime fundDate = DateTime.Parse(loan.fields.Fields1997);
+            DateTime fundDate = DateTime.Parse(loan.fields.Fields1999);
             string fundDateString = fundDate.ToString("MM/dd/yyyy");
 
             body = string.Format(body, fundDateString);
