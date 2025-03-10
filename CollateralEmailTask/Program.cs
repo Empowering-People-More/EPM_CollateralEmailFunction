@@ -55,7 +55,7 @@ namespace CollateralEmailTask
                     + " (" + prevSaturdayBatchDate.ToString("dddd") + ")");
                 ProcessDay(prevSaturdayBatchDate, appSettings, _logger);
             }
-
+            //Added completion logging.
             _logger.Information("Completed collateral emailer process.");
         }
 
