@@ -21,6 +21,9 @@ namespace CollateralEmailTask
         static void Main(string[] args)
         {
 
+            if (DateTime.Now.DayOfWeek == DayOfWeek.Saturday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
+                return;
+
             var appSettings = GetLocalAppSettings();
 
             _logger = new AppInsightsLogger(appSettings.AppInsightsKey, EPM_AppInsightsLogger.Environment.Prod, "EPM_CollateralEmailer");
