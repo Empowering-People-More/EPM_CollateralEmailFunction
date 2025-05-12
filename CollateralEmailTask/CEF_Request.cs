@@ -86,7 +86,12 @@ namespace CollateralEmailTask
                 list.Add("Fields.CX.PC.ORIGINAL.NOTE.DATE");
                 list.Add("Fields.1999");
                 list.Add("Loan.BorrowerLastName");
-
+                list.Add("Fields.URLA.X73");
+                list.Add("Fields.URLA.X74");
+                list.Add("Fields.URLA.X75");
+                list.Add("Fields.12");
+                list.Add("Fields.14");
+                list.Add("Fields.15");
                 return list;
             }
         }

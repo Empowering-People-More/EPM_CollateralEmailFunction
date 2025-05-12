@@ -28,7 +28,7 @@ namespace CollateralEmailTask
 
             _logger = new AppInsightsLogger(appSettings.AppInsightsKey, EPM_AppInsightsLogger.Environment.Prod, "EPM_CollateralEmailer");
 
-            DateTime runDate = DateTime.Now.AddDays(-3);
+            DateTime runDate = GetCollateralFundDateForEmail(3, DateTime.Now);
 
             _logger.Information("Running collateral emailer for " + runDate.ToString("MM/dd/yyyy") + " (" + runDate.ToString("dddd") + ")");
 
@@ -36,7 +36,7 @@ namespace CollateralEmailTask
 
             _logger.Information("Completed collateral emailer for " + runDate.ToString("MM/dd/yyyy") + " (" + runDate.ToString("dddd") + ")");
 
-            runDate = DateTime.Now.AddDays(-4);
+            runDate = GetCollateralFundDateForEmail(4, DateTime.Now);
 
             _logger.Information("Running collateral emailer for " + runDate.ToString("MM/dd/yyyy") + " (" + runDate.ToString("dddd") + ")");
 
@@ -44,23 +44,66 @@ namespace CollateralEmailTask
 
             _logger.Information("Completed collateral emailer for " + runDate.ToString("MM/dd/yyyy") + " (" + runDate.ToString("dddd") + ")");
 
-            if (DateTime.Now.DayOfWeek == DayOfWeek.Monday)
-            {
-                DateTime prevSundayBatchDate = DateTime.Now.AddDays(-5);
-                _logger.Information("Running collateral emailer for " + prevSundayBatchDate.ToString("MM/dd/yyyy")
-                    + " (" + prevSundayBatchDate.ToString("dddd") + ")");
-                ProcessDay(prevSundayBatchDate, appSettings, _logger);
+            //if (DateTime.Now.DayOfWeek == DayOfWeek.Monday)
+            //{
+            //    DateTime prevSundayBatchDate = DateTime.Now.AddDays(-5);
+            //    _logger.Information("Running collateral emailer for " + prevSundayBatchDate.ToString("MM/dd/yyyy")
+            //        + " (" + prevSundayBatchDate.ToString("dddd") + ")");
+            //    ProcessDay(prevSundayBatchDate, appSettings, _logger);
 
-                _logger.Information("Completed collateral emailer for " + prevSundayBatchDate.ToString("MM/dd/yyyy")
-                    + " (" + prevSundayBatchDate.ToString("dddd") + ")");
+            //    _logger.Information("Completed collateral emailer for " + prevSundayBatchDate.ToString("MM/dd/yyyy")
+            //        + " (" + prevSundayBatchDate.ToString("dddd") + ")");
 
-                DateTime prevSaturdayBatchDate = DateTime.Now.AddDays(-6);
-                _logger.Information("Running collateral emailer for " + prevSaturdayBatchDate.ToString("MM/dd/yyyy")
-                    + " (" + prevSaturdayBatchDate.ToString("dddd") + ")");
-                ProcessDay(prevSaturdayBatchDate, appSettings, _logger);
-            }
+            //    DateTime prevSaturdayBatchDate = DateTime.Now.AddDays(-6);
+            //    _logger.Information("Running collateral emailer for " + prevSaturdayBatchDate.ToString("MM/dd/yyyy")
+            //        + " (" + prevSaturdayBatchDate.ToString("dddd") + ")");
+            //    ProcessDay(prevSaturdayBatchDate, appSettings, _logger);
+            //}
             //Added completion logging.
             _logger.Information("Completed collateral emailer process.");
+        }
+
+        public static DateTime GetCollateralFundDateForEmail(int daysBack, DateTime selectedDate)
+        {
+
+            DateTime queryDate = DateTime.Now;
+            //if selectedDate is a fri or thurs, just return selectedDate - 3
+            //if "" is a weds, return previous friday
+            //if "" is a tues, return previous thurs
+            //if "" is a mon, return previous weds (selectedDate -7, then +2 or +1)
+            int bufferDays = 5 - daysBack;
+
+            if (daysBack == 4)
+            {
+                //handling for 4 days passed since funding
+                if (selectedDate.DayOfWeek == DayOfWeek.Friday)
+                {
+                    queryDate = selectedDate.AddDays(-daysBack);
+                }
+                else
+                {
+                    queryDate = selectedDate.AddDays(-7);
+                    queryDate = queryDate.AddDays(bufferDays);
+                }
+            }
+            else if (daysBack == 3)
+            {
+                if (selectedDate.DayOfWeek == DayOfWeek.Thursday || selectedDate.DayOfWeek == DayOfWeek.Friday)
+                {
+                    queryDate = selectedDate.AddDays(-daysBack);
+                }
+                else
+                {
+                    queryDate = selectedDate.AddDays(-7);
+                    queryDate = queryDate.AddDays(bufferDays);
+                }
+            }
+            else
+            {
+                return DateTime.MinValue;
+            }
+
+            return queryDate;
         }
 
         public static void ProcessDay(DateTime runDate, AppSettings appSettings, AppInsightsLogger logger)
@@ -87,6 +130,32 @@ namespace CollateralEmailTask
             }
         }
 
+        public static string BuildSubjPropAddress(CefResponseRoot loan)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append(loan.fields.SubjPropStreetAddress);
+            sb.Append(" ");
+
+            if (loan.fields.SubjPropUnitType.Trim() != string.Empty)
+            {
+                if (loan.fields.SubjPropUnitNumber.Trim() != string.Empty)
+                {
+                    sb.Append(loan.fields.SubjPropUnitType + " " + loan.fields.SubjPropUnitNumber);
+                }
+            }
+
+            sb.Append(" ");
+            sb.Append(loan.fields.SubjPropCity);
+            sb.Append(" ");
+            sb.Append(loan.fields.SubjPropState);
+            sb.Append(" ");
+            sb.Append(loan.fields.SubjPropZip);
+
+            string s = sb.ToString();
+            return s;
+        }
+
         public static void Send3DayEmail(CefResponseRoot loan, AppSettings appSettings)
         {
             //_logger.LogInformation("Preparing email for loan " + loan.fields.LoanLoanNumber);
@@ -94,7 +163,9 @@ namespace CollateralEmailTask
             DateTime fundDate = DateTime.Parse(loan.fields.Fields1999);
             string fundDateString = fundDate.ToString("MM/dd/yyyy");
 
-            body = string.Format(body, fundDateString);
+            string addressLine = BuildSubjPropAddress(loan);
+
+            body = string.Format(body, fundDateString, addressLine);
             string subject = EmailTemplate.GetSubjectTemplate();
             subject = string.Format(subject, loan.fields.LoanLoanNumber, loan.fields.LoanBorrowerLastName);
             string from = EmailTemplate.GetFromTemplate();

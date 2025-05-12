@@ -35,6 +35,24 @@ namespace CollateralEmailTask
         [JsonProperty("Loan.BorrowerLastName")]
         public string LoanBorrowerLastName { get; set; }
 
+        [JsonProperty("Fields.URLA.X73")]
+        public string SubjPropStreetAddress { get; set; }
+
+        [JsonProperty("Fields.12")]
+        public string SubjPropCity { get; set; }
+
+        [JsonProperty("Fields.URLA.X74")]
+        public string SubjPropUnitType { get; set; }
+
+        [JsonProperty("Fields.URLA.X75")]
+        public string SubjPropUnitNumber {get;set; }
+
+        [JsonProperty("Fields.14")]
+        public string SubjPropState { get; set; }
+
+        [JsonProperty("Fields.15")]
+        public string SubjPropZip { get; set; }
+
         public CefResponseFields()
         {
             LoanLoanFolder = string.Empty;
@@ -44,6 +62,11 @@ namespace CollateralEmailTask
             FieldsCXPCORIGINALNOTEDATE  = string.Empty;
             Fields1999 = string.Empty;
             LoanBorrowerLastName = string.Empty;
+            SubjPropStreetAddress = string.Empty;
+            SubjPropCity = string.Empty;
+            SubjPropUnitType = string.Empty;
+            SubjPropUnitNumber = string.Empty;
+
         }
     }
 

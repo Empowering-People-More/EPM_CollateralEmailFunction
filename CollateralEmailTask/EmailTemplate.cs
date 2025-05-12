@@ -25,6 +25,8 @@ namespace CollateralEmailTask
     <br /> our office within 24 hours of closing, or you are subject to a charge of <b>$250.00 per day delayed</b>.  Please provide us with the note’s tracking number or any
     <br />updates you may have regarding the delay of this delivery.
     <br />
+    <br /> Subject Property: {1}
+    
     <br /> <b>Important Information Below!</br>
 	<br/>
 	Please only ship the original wet signed note & any needed addendums/power of attorney/checks. The closing package should be uploaded to 
